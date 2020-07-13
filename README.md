@@ -6,7 +6,7 @@ Weather dashboard was created to provide the weather outlook so that travelers c
 ---
 
 
-![](assets/css/images/weather.png)
+
 
 
 ---
