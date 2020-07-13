@@ -1,67 +1,80 @@
 
-    
     // Variable declaration
-    
     var city ="";
     
-    // var inputEl = document.querySelector("city-input");
-    // var searchEl = document.querySelector("searchbtn");
-    // var clearEl = document.querySelector("clear-history");
-
-    // var nameEl = document.querySelector("city-name");
-    // var currentTempEl = document.querySelector("temprature");
-    // var currentHumdityEl = document.querySelector("humidity");
-    // var currentWindEl = document.querySelector("wind-speed");
-    // var currentUVEL = document.querySelector("UV-index");
-    // var historyEL = document.querySelector("#history");
-    // var responseContainer = document.querySelector("#searchbtn")
-    // var inputEL = document.querySelector("#searchinput")
-
-
-
-
-    // var searchHistory = JSON.parse(localStorage.getItem("search")) || [];
-    //  console.log(searchHistory);
-
-
-
-    var getWeather= function () {
-      fetch(api.openweathermap.org/data/2.5/weather?q=)
-    };
-
-    getWeather();
-
-    // // query selector for search button
-    // // event listner for search button
-
-    // // query selector input text value
-    // // make sure fetch is working 
-
+   var searchCity = $("#search-city");
+   var searchButton = $("#search-button");
+   var clearButton = $("#clear-history");
+   var currentCity = $("#current-city");
+   var currentTemperature = $("#temperature");
+   var currentHumidty = $("#humidity");
+   var currentWSpeed = $("#wind-speed");
+   var currentUvindex = $("#uv-index");
+   var sCity = [];
     
+function find(c){
+    for (var i=0; i<sCity.length; i++){
+        if(c.toUpperCase()===sCity[i]){
+            return -1;
+        }
+    }
+    return 1;
+}
 
-    // var getWeather = function(cityName) {
+var APIKey = "e8f5f64870bb4d6157cd0e7e73574b75";
+
+    event.preventDefault();
+    if(searchCity.val().trim()!==""){
+        city=searchCity.val().trim();
+        currentWeather(city);
+    }
+}
+function currentWeather(city){
+    var queryURL= "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=" + APIKey;
+    $.ajax({
+        url:queryURL,
+        method:"GET",
+    }).then(function(response){
+
+       
+        var weathericon= response.weather[0].icon;
+        var iconurl="https://openweathermap.org/img/wn/"+weathericon +"@2x.png";
         
-    //     var apiKey = "886705b4c1182eb1c69f28eb8c520e20";
-    
-    //     var queryURL =
-    //       "http://api.openweathermap.org/data/2.5/weather?q=" +
-    //       cityName +
-    //       "&appid=" +
-    //       apiKey;
-
-    //     fetch(queryURL)
-    //       .then(function (response) {
-    //         return response.json();
-    //       })
-    //       .then(function (data) {
-    //         console.log(data);
-
-    //         var currentDate = new Date(response.data.dt * 1000);
-    //         console.log(currentDate);
-    //       });
-    // }
-
-
-
-
+        var date=new Date(response.dt*1000).toLocaleDateString();
   
+        $(currentCity).html(response.name +"("+date+")" + "<img src="+iconurl+">");
+   
+
+        var tempF = (response.main.temp - 273.15) * 1.80 + 32;
+        $(currentTemperature).html((tempF).toFixed(2)+"&#8457");
+     
+        $(currentHumidty).html(response.main.humidity+"%");
+    
+        var ws=response.wind.speed;
+        var windsmph=(ws*2.237).toFixed(1);
+        $(currentWSpeed).html(windsmph+"MPH");
+        
+        UVIndex(response.coord.lon,response.coord.lat);
+        forecast(response.id);
+        if(response.cod==200){
+            sCity=JSON.parse(localStorage.getItem("cityname"));
+            console.log(sCity);
+            if (sCity==null){
+                sCity=[];
+                sCity.push(city.toUpperCase()
+                );
+                localStorage.setItem("cityname",JSON.stringify(sCity));
+                addToList(city);
+            }
+            else {
+                if(find(city)>0){
+                    sCity.push(city.toUpperCase());
+                    localStorage.setItem("cityname",JSON.stringify(sCity));
+                    addToList(city);
+                }
+            }
+        }
+
+    });
+}
+   
